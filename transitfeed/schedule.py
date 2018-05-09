@@ -617,6 +617,10 @@ class Schedule(object):
     zi.compress_type = zipfile.ZIP_DEFLATED
     archive.writestr(zi, stringio.getvalue())
 
+  def _WriteArchiveFile(self, archive, filename, archname):
+    os.chmod(filename, 0666)
+    archive.write(filename, archname, zipfile.ZIP_DEFLATED)
+
   def WriteGoogleTransitFeed(self, file):
     """Output this schedule as a Google Transit Feed in file_name.
 
@@ -732,12 +736,14 @@ class Schedule(object):
       writer.writerow(self._gtfs_factory.FareRule._FIELD_NAMES)
       writer.writerows(rule_rows)
       self._WriteArchiveString(archive, 'fare_rules.txt', rule_string)
-    stop_times_string = StringIO.StringIO()
-    writer = util.CsvUnicodeWriter(stop_times_string)
+    
+    temp_stop_times_file = tempfile.NamedTemporaryFile()
+    writer = util.StopTimesWriter(temp_stop_times_file.name)
     writer.writerow(self._gtfs_factory.StopTime._FIELD_NAMES)
     for t in self.trips.values():
       writer.writerows(t._GenerateStopTimesTuples())
-    self._WriteArchiveString(archive, 'stop_times.txt', stop_times_string)
+    writer.close()
+    self._WriteArchiveFile(archive, temp_stop_times_file.name, 'stop_times.txt')
 
     # write shapes (if applicable)
     shape_rows = []

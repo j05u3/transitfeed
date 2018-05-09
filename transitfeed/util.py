@@ -25,6 +25,7 @@ import socket
 import sys
 import time
 import urllib2
+import zipfile
 
 import problems as problems_module
 from trip import Trip
@@ -565,6 +566,55 @@ class CsvUnicodeWriter:
     utf-8."""
     for row in rows:
       self.writerow(row)
+
+  def __getattr__(self, name):
+    return getattr(self.writer, name)
+
+class StopTimesWriter:
+  """
+  """
+  def __init__(self, outfile):
+    self.writer = open(outfile, 'wb')
+
+  def purge(self, str):
+    if str.find(',') != -1 or str.find('\n') != -1 or str.find('\r') != -1:
+      str = str.replace('"', '""')
+      str = '"' + str + '"'
+    return str
+
+  def writerow(self, row):
+    """Write row to the csv file. Any unicode strings in row are encoded as
+    utf-8."""
+    encoded_row = ""
+    first = True
+    for s in row:
+      r = ""
+      if isinstance(s, unicode):
+        r = s.encode("utf-8")
+      elif isinstance(s, basestring):
+        r = s
+      else:
+        r = str(s)
+      # encoded_row.append(s)
+      if not first:
+        encoded_row += ','
+      first = False
+      encoded_row += self.purge(r)
+    encoded_row += '\n'
+    try:
+      self.writer.write(encoded_row)
+    except Exception, e:
+      print 'error writing %s as %s' % (row, encoded_row)
+      raise e
+
+  def writerows(self, rows):
+    """Write rows to the csv file. Any unicode strings in rows are encoded as
+    utf-8."""
+    for row in rows:
+      self.writerow(row)
+
+  def close(self):
+    self.writer.flush()
 
   def __getattr__(self, name):
     return getattr(self.writer, name)
