@@ -631,7 +631,7 @@ class Schedule(object):
       None
     """
     # Compression type given when adding each file
-    archive = zipfile.ZipFile(file, 'w')
+    archive = zipfile.ZipFile(file, 'w', zipfile.ZIP_DEFLATED, True)
 
     if 'agency' in self._table_columns:
       agency_string = StringIO.StringIO()
