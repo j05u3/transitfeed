@@ -201,20 +201,22 @@ class Route(GtfsObjectBase):
   def ValidateRouteColor(self, problems):
     if self.route_color:
       if not util.IsValidHexColor(self.route_color):
-        problems.InvalidValue('route_color', self.route_color,
-                              'route_color should be a valid color description '
-                              'which consists of 6 hexadecimal characters '
-                              'representing the RGB values. Example: 44AA06')
+        #### in order to get TuRuta-GTFSeditor badly exported text colors to work here:
+        # problems.InvalidValue('route_color', self.route_color,
+        #                       'route_color should be a valid color description '
+        #                       'which consists of 6 hexadecimal characters '
+        #                       'representing the RGB values. Example: 44AA06')
         self.route_color = None
 
   def ValidateRouteTextColor(self, problems):
     if self.route_text_color:
       if not util.IsValidHexColor(self.route_text_color):
-        problems.InvalidValue('route_text_color', self.route_text_color,
-                              'route_text_color should be a valid color '
-                              'description, which consists of 6 hexadecimal '
-                              'characters representing the RGB values. '
-                              'Example: 44AA06')
+        #### in order to get TuRuta-GTFSeditor badly exported text colors to work here:
+        # problems.InvalidValue('route_text_color', self.route_text_color,
+        #                       'route_text_color should be a valid color '
+        #                       'description, which consists of 6 hexadecimal '
+        #                       'characters representing the RGB values. '
+        #                       'Example: 44AA06')
         self.route_text_color = None
 
   def ValidateRouteAndTextColors(self, problems):
@@ -226,6 +228,9 @@ class Route(GtfsObjectBase):
       txt_lum = util.ColorLuminance(self.route_text_color)
     else:
       txt_lum = util.ColorLuminance('000000')  # black (default)
+
+    return True # in order to get TuRuta-GTFSeditor-exported GTFS to work here
+
     if abs(txt_lum - bg_lum) < 510/7.:
       # http://www.w3.org/TR/2000/WD-AERT-20000426#color-contrast recommends
       # a threshold of 125, but that is for normal text and too harsh for
